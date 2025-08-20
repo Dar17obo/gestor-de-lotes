@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pagos - Lotes</title>
+    <link rel="stylesheet" href="cliente-style.css">
+</head>
+<body>
+    <div id="cliente-view">
+        <div class="login-container">
+            <img src="logo.png" alt="Logo" class="logo-login">
+            <h2 id="cliente-title">Gestor de Lotes - Acceso de Cliente</h2>
+            <form id="cliente-login-form" class="form-container">
+                <input type="text" id="cliente-dni" placeholder="Ingresa tu DNI" required>
+                <button type="submit">Ingresar</button>
+            </form>
+            <p id="cliente-error-message" class="error-message"></p>
+
+            <div id="pago-form-container" class="hidden">
+                <h3 id="pago-form-title">Cargar Comprobante de Pago</h3>
+                <p>Hola, <strong id="nombre-cliente-display"></strong>. Sube tu comprobante de pago.</p>
+                <form id="subir-comprobante-form" class="form-container">
+                    <label for="comprobante-archivo">Selecciona el comprobante (imagen o PDF):</label>
+                    <input type="file" id="comprobante-archivo" accept="image/*, .pdf" required>
+
+                    <label for="pago-mes">Selecciona el mes que pagas:</label>
+                    <select id="pago-mes" required>
+                        <option value="">Seleccionar mes...</option>
+                        <option value="Enero">Enero</option>
+                        <option value="Febrero">Febrero</option>
+                        <option value="Marzo">Marzo</option>
+                        <option value="Abril">Abril</option>
+                        <option value="Mayo">Mayo</option>
+                        <option value="Junio">Junio</option>
+                        <option value="Julio">Julio</option>
+                        <option value="Agosto">Agosto</option>
+                        <option value="Septiembre">Septiembre</option>
+                        <option value="Octubre">Octubre</option>
+                        <option value="Noviembre">Noviembre</option>
+                        <option value="Diciembre">Diciembre</option>
+                    </select>
+                    <button type="submit">Enviar Comprobante</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="cliente.js"></script>
+</body>
+</html>

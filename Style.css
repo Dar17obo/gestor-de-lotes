@@ -1,0 +1,367 @@
+/* --- ESTILOS GENERALES Y RESETEO --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+.hidden { display: none !important; }
+.error-message { color: #d93025; font-weight: bold; min-height: 20px; }
+
+/* --- VISTA DE LOGIN --- */
+#login-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 90vh;
+}
+.login-container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+.login-container h2 { margin-top: 0; }
+.login-container form { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 16px; 
+    align-items: center; 
+}
+.logo-login { max-width: 120px; margin-bottom: 20px; }
+
+/* --- PANEL DE ADMINISTRACIÓN (HEADER CORREGIDO) --- */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+.header-section {
+    display: flex;
+    align-items: center;
+}
+.header-left {
+    justify-content: flex-start;
+    gap: 15px;
+    flex: 1;
+}
+.header-center {
+    justify-content: center;
+    flex: 1;
+}
+.header-right {
+    justify-content: flex-end;
+    flex: 1;
+}
+.admin-header h1 { margin: 0; font-size: 24px; white-space: nowrap; }
+.logo-panel { height: 40px; }
+
+#logout-button { 
+    background-color: #dc3545; 
+    color: #fff; 
+    padding: 8px 16px;
+    font-size: 14px;
+}
+#logout-button:hover { background-color: #c82333; }
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+
+/* --- NAVEGACIÓN --- */
+.main-nav {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+.nav-button {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background-color: #e9ecef;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    text-align: center;
+    position: relative; /* Para posicionar la notificación */
+}
+.nav-button.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+/* --- VISTAS DE CONTENIDO --- */
+.content-view { display: flex; gap: 20px; flex-wrap: wrap; }
+.form-column { flex: 1; min-width: 300px; }
+.list-column { flex: 2; min-width: 400px; }
+.form-column-single { flex: 1; max-width: 600px; margin: auto; }
+
+/* --- SECCIONES Y FORMULARIOS --- */
+.admin-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    width: 100%;
+    box-sizing: border-box;
+}
+.admin-section h3 { margin-top: 0; }
+form { display: flex; flex-direction: column; gap: 16px; }
+input, textarea, select, button, label {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    font-family: inherit;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 300px; 
+}
+label {
+    border: none;
+    padding: 10px 0 0 0;
+    font-weight: 500;
+    color: #555;
+}
+button {
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+}
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+button.btn-primary { background-color: #28a745; color: #fff; }
+button.btn-primary:hover:not(:disabled) { background-color: #218838; }
+
+
+/* --- TARJETAS (LOTES Y CLIENTES) --- */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.card {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-left: 5px solid;
+}
+.card.Disponible { border-left-color: #28a745; }
+.card.Vendido { border-left-color: #dc3545; }
+.card.Reservado { border-left-color: #ffc107; }
+
+/* ESTILOS DE ESTADO DE PAGO EN TARJETAS DE CLIENTES */
+.card.AlDia { border-left-color: #28a745; }
+.card.Demorado { border-left-color: #ffc107; }
+.card.Atrasado { border-left-color: #dc3545; }
+
+
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.card-info h4 { margin: 0 0 10px 0; }
+.card-info p { margin: 4px 0; color: #6c757d; }
+.card-info strong { color: #333; }
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    white-space: nowrap;
+}
+.card-actions {
+    margin-top: 15px;
+    border-top: 1px solid #e9ecef;
+    padding-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.card-actions button { font-size: 14px; padding: 8px 12px; }
+
+/* --- MODALES --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+.close-modal-button {
+    position: absolute;
+    top: 10px; right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #888;
+}
+
+/* --- PAGOS --- */
+.summary {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+.summary p { margin: 5px 0; }
+.monto-a-cobrar {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-top: 10px;
+}
+.monto-a-cobrar strong {
+    color: #28a745;
+    font-size: 1.2em;
+}
+#pagos-historial .pago-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+}
+#pagos-historial .pago-item:last-child { border-bottom: none; }
+#pagos-historial .pago-item span { margin-right: 15px; }
+#pagos-historial .pago-item .monto { font-weight: bold; }
+
+
+/* --- NUEVO: ESTILOS ESPECÍFICOS PARA EL PORTAL DE CLIENTES --- */
+#cliente-view .login-container {
+    text-align: center;
+}
+
+#cliente-view .login-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+#cliente-view .login-container form input,
+#cliente-view .login-container form button {
+    max-width: 300px;
+}
+
+/* Notificación visual para el botón de comprobantes */
+.nav-button.notificacion::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #ff4d4d; /* Rojo */
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+/* --- MEDIAS QUERIES PARA RESPONSIVIDAD EN CELULARES --- */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .admin-header h1 {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+
+    .main-nav {
+        flex-direction: column;
+    }
+    
+    .nav-button {
+        border-radius: 6px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .content-view {
+        flex-direction: column;
+    }
+
+    .form-column, .list-column {
+        min-width: unset;
+        width: 100%;
+    }
+    
+    .admin-section {
+        padding: 20px;
+    }
+    
+    .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+    }
+    
+    /* Regla para que los inputs en todo el sitio se vean mejor en celulares */
+    input, textarea, select, button, label {
+        max-width: 100%; 
+    }
+}
