@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const comprobanteFileInput = document.getElementById('comprobante-archivo');
     const pagoMesSelect = document.getElementById('pago-mes');
     
+    // CORRECCIÓN: Se agregó el ID al elemento p en cliente.html
     const historialPagosClienteContainer = document.getElementById('historial-pagos-cliente');
     const pagoPendienteMessage = document.getElementById('pago-pendiente-message');
     const historialPagosContainer = document.getElementById('historial-pagos-container');
@@ -35,10 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         clienteActual = data;
         nombreClienteDisplay.textContent = clienteActual.nombre_apellido;
+        // CORRECCIÓN: Se oculta el formulario de login, no toda la vista.
         clienteLoginForm.classList.add('hidden');
         pagoFormContainer.classList.remove('hidden');
-        clienteErrorMessage.textContent = '';
-        
         await cargarHistorialPagosCliente();
     });
 
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (pagosError) {
             console.error('Error al cargar historial de pagos:', pagosError);
-            historialPagosClienteContainer.innerHTML = '<p>Error al cargar el historial de pagos.</p>';
+            historialPagosContainer.innerHTML = '<p>Error al cargar el historial de pagos.</p>'; 
             return;
         }
         
@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  comprobantesHTML += `<li>Comprobante de ${c.mes_pago} - Estado: **${c.estado_verificacion}**</li>`;
             });
             comprobantesHTML += '</ul>';
+            // CORRECCIÓN: Ya existe el elemento en el HTML, ahora se puede asignar el valor
             pagoPendienteMessage.innerHTML = comprobantesHTML;
             pagoPendienteMessage.classList.remove('hidden');
         } else {
@@ -99,7 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = 'Enviando...';
         
         try {
-            const filePath = `comprobantes/${clienteActual.dni}/${mesPago}_${new Date().toISOString()}_${archivo.name}`;
+            // CORRECCIÓN: Se utiliza el vendedor_id como la carpeta de primer nivel.
+            const filePath = `${clienteActual.vendedor_id}/${clienteActual.dni}/${mesPago}_${new Date().toISOString()}_${archivo.name}`;
             
             const { error: uploadError } = await sb.storage.from('comprobantes').upload(filePath, archivo);
             

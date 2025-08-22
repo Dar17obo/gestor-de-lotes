@@ -1,54 +1,46 @@
+// Este es el código para la función de Netlify
 const { createClient } = require('@supabase/supabase-js');
 
-// Configuración del cliente Supabase con la clave de servicio
-// Estas claves se deben configurar en las variables de entorno de Netlify
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY; // ¡IMPORTANTE! Usar la clave de servicio
+// Las variables de entorno de Supabase se cargan automáticamente en Netlify
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// No uses la clave anon, usa la clave de rol de servicio para seguridad
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 exports.handler = async (event, context) => {
-  // Solo procesamos solicitudes POST
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ message: 'Método no permitido' }),
-    };
-  }
-
-  try {
-    const { filePath } = JSON.parse(event.body);
-
-    if (!filePath) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'Se requiere la ruta del archivo (filePath)' }),
-      };
+    // Solo permitimos solicitudes POST
+    if (event.httpMethod !== 'POST') {
+        return {
+            statusCode: 405,
+            body: 'Method Not Allowed',
+        };
     }
 
-    // Generar la URL firmada, válida por 60 segundos
-    const { data, error } = await supabase.storage
-      .from('comprobantes')
-      .createSignedUrl(filePath, 60); // 60 segundos de validez
+    try {
+        const { filePath } = JSON.parse(event.body);
 
-    if (error) {
-      console.error('Error al generar URL firmada:', error);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: error.message }),
-      };
+        // Genera la URL firmada con una expiración de 60 segundos
+        const { data, error } = await supabase.storage
+            .from('comprobantes')
+            .createSignedUrl(filePath, 60);
+
+        if (error) {
+            console.error('Error creating signed URL:', error);
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: error.message }),
+            };
+        }
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ signedUrl: data.signedUrl }),
+        };
+    } catch (err) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: err.message }),
+        };
     }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ signedUrl: data.signedUrl }),
-    };
-
-  } catch (error) {
-    console.error('Error inesperado:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Ocurrió un error inesperado', error: error.message }),
-    };
-  }
 };

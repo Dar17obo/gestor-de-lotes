@@ -40,12 +40,13 @@
                         <option value="Noviembre">Noviembre</option>
                         <option value="Diciembre">Diciembre</option>
                     </select>
+                    <p id="pago-pendiente-message" class="error-message"></p>
                     <button type="submit">Enviar Comprobante</button>
                 </form>
             </div>
+             <div id="historial-pagos-container"></div>
         </div>
     </div>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
     <script src="supabase-client.js"></script>
     <script src="cliente.js"></script>
