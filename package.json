@@ -1,5 +1,23 @@
 {
   "dependencies": {
-    "@supabase/supabase-js": "^2.55.0"
-  }
+    "@supabase/supabase-js": "^2.56.0"
+  },
+  "name": "ver",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dar17obo/gestor-de-lotes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dar17obo/gestor-de-lotes/issues"
+  },
+  "homepage": "https://github.com/Dar17obo/gestor-de-lotes#readme",
+  "description": ""
 }
