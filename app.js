@@ -445,9 +445,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // CORRECCIÓN: Llama a la nueva función de Netlify para obtener una URL segura
             try {
+                // CORRECCIÓN: Pasamos la ruta del archivo directamente de la URL de la base de datos
+                const filePath = comprobanteParaEditar.url_comprobante.split('/comprobantes/')[1];
+
                 const response = await fetch('/.netlify/functions/generate-signed-url', {
                     method: 'POST',
-                    body: JSON.stringify({ filePath: comprobanteParaEditar.url_comprobante.split('/storage/v1/object/public/')[1] })
+                    body: JSON.stringify({ filePath: filePath })
                 });
 
                 if (!response.ok) {
@@ -706,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/.netlify/functions/generate-signed-url', {
                 method: 'POST',
-                body: JSON.stringify({ filePath: comprobante.url_comprobante.split('/storage/v1/object/public/')[1] })
+                body: JSON.stringify({ filePath: comprobante.url_comprobante.split('/comprobantes/')[1] })
             });
 
             if (!response.ok) {
