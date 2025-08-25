@@ -448,9 +448,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // CORRECCIÓN: Pasamos la ruta del archivo directamente de la URL de la base de datos
                 const filePath = comprobanteParaEditar.url_comprobante.split('/comprobantes/')[1];
 
-                // ----- MODIFICACIÓN AQUÍ -----
-                console.log('Ruta del archivo a solicitar:', filePath);
-
                 const response = await fetch('/.netlify/functions/generate-signed-url', {
                     method: 'POST',
                     body: JSON.stringify({ filePath: filePath })
@@ -521,15 +518,46 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (target.matches('.btn-ver-comprobante-historial')) {
             const comprobanteId = target.dataset.comprobanteId;
-            const comprobante = comprobantesPendientes.find(c => c.id == comprobanteId);
-
-            if (!comprobante) return alert('Comprobante no encontrado en los pendientes. Si se necesita ver, se debe buscar en la base de datos de comprobantes.');
-
-            document.getElementById('comprobante-viewer-content').innerHTML = comprobante.url_comprobante.endsWith('.pdf')
-                ? `<embed src="${comprobante.url_comprobante}" type="application/pdf" width="100%" height="500px">`
-                : `<img src="${comprobante.url_comprobante}" alt="Comprobante de Pago" style="max-width: 100%; height: auto;">`;
             
-            abrirModal('comprobante-viewer-modal');
+            try {
+                // Busca el comprobante directamente en la base de datos por su ID
+                // Ahora, no importa si está "Pendiente" o "Aprobado", siempre lo encontrará
+                const { data: comprobante, error } = await sb.from('comprobantes_subidos')
+                    .select('url_comprobante')
+                    .eq('id', comprobanteId)
+                    .single();
+
+                if (error || !comprobante) {
+                    throw new Error('Comprobante no encontrado en la base de datos.');
+                }
+
+                // Extracción de la ruta del archivo para enviarla a la función de Netlify
+                const filePath = comprobante.url_comprobante.split('/comprobantes/')[1];
+
+                // Llama a la función de Netlify para obtener una URL segura y temporal
+                const response = await fetch('/.netlify/functions/generate-signed-url', {
+                    method: 'POST',
+                    body: JSON.stringify({ filePath: filePath })
+                });
+
+                if (!response.ok) {
+                    throw new Error('La función de Netlify devolvió un error: ' + response.statusText);
+                }
+
+                const data = await response.json();
+                const signedUrl = data.signedUrl;
+
+                // Muestra el comprobante en el modal, sin importar el formato (PDF o imagen)
+                document.getElementById('comprobante-viewer-content').innerHTML = comprobante.url_comprobante.endsWith('.pdf')
+                    ? `<embed src="${signedUrl}" type="application/pdf" width="100%" height="500px">`
+                    : `<img src="${signedUrl}" alt="Comprobante de Pago" style="max-width: 100%; height: auto;">`;
+                
+                abrirModal('comprobante-viewer-modal');
+
+            } catch (error) {
+                console.error('Error al obtener el comprobante del historial:', error);
+                return alert('Hubo un error al obtener el comprobante. Por favor, revisa la consola.');
+            }
         }
         
     });
