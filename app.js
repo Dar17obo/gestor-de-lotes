@@ -448,6 +448,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // CORRECCIÓN: Pasamos la ruta del archivo directamente de la URL de la base de datos
                 const filePath = comprobanteParaEditar.url_comprobante.split('/comprobantes/')[1];
 
+                // ----- MODIFICACIÓN AQUÍ -----
+                console.log('Ruta del archivo a solicitar:', filePath);
+
                 const response = await fetch('/.netlify/functions/generate-signed-url', {
                     method: 'POST',
                     body: JSON.stringify({ filePath: filePath })
