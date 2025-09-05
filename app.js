@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="card-header">
                     <div class="card-info">
                         <h4>Manzana ${lote.numero_manzana} - Lote ${lote.numero_lote}</h4>
-                        <p><strong>Metros:</strong> ${lote.metros_cuadrados} m²</p>
+                        <p><strong>Metros:</strong> ${parseFloat(lote.metros_cuadrados).toFixed(2).replace('.', ',')} m²</p>
                         <p><strong>Valor:</strong> ${String(lote.cantidad_bolsas_cemento || 0).replace('.',',')} bolsas (~${formatARS(valorCalculado)})</p>
                         ${clienteAsignado ? `<p><strong>Propietario:</strong> ${clienteAsignado.nombre_apellido}</p>` : ''}
                     </div>
@@ -318,9 +318,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lote-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const loteData = {
-            numero_manzana: document.getElementById('lote-manzana').value,
-            numero_lote: document.getElementById('lote-numero').value,
-            metros_cuadrados: parseInt(document.getElementById('lote-metros').value, 10),
+            numero_manzana: parseInt(document.getElementById('lote-manzana').value),
+            numero_lote: parseInt(document.getElementById('lote-numero').value),
+            metros_cuadrados: parseFlexibleFloat(document.getElementById('lote-metros').value),
             cantidad_bolsas_cemento: parseFlexibleFloat(document.getElementById('lote-bolsas').value),
             estado: document.getElementById('lote-estado').value,
             vendedor_id: currentUser.id
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('lote-id').value = lote.id;
             document.getElementById('lote-manzana').value = lote.numero_manzana;
             document.getElementById('lote-numero').value = lote.numero_lote;
-            document.getElementById('lote-metros').value = lote.metros_cuadrados;
+            document.getElementById('lote-metros').value = parseFlexibleFloat(lote.metros_cuadrados).toFixed(2).replace('.', ',');
             document.getElementById('lote-bolsas').value = String(lote.cantidad_bolsas_cemento).replace('.', ',');
             document.getElementById('lote-estado').value = lote.estado;
             editandoLote = true;
@@ -498,7 +498,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Comprobante aprobado y listo para adjuntar en la gestión de pagos.');
         }
 
-        // CORRECCIÓN: El botón Eliminar ya tiene la lógica para recargar y renderizar, asegurando que se elimine correctamente de la vista.
         if (target.matches('.btn-eliminar-comprobante')) {
             const comprobanteId = target.dataset.id;
             if (confirm('¿Estás seguro de que quieres eliminar este comprobante?')) {
@@ -508,7 +507,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     return alert('Hubo un error al eliminar el comprobante.');
                 }
                 
-                // Eliminamos el comprobante del array local y volvemos a renderizar
                 comprobantesPendientes = comprobantesPendientes.filter(c => c.id !== comprobanteId);
                 renderizarComprobantes();
 
@@ -520,8 +518,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const comprobanteId = target.dataset.comprobanteId;
             
             try {
-                // Busca el comprobante directamente en la base de datos por su ID
-                // Ahora, no importa si está "Pendiente" o "Aprobado", siempre lo encontrará
                 const { data: comprobante, error } = await sb.from('comprobantes_subidos')
                     .select('url_comprobante')
                     .eq('id', comprobanteId)
@@ -531,10 +527,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error('Comprobante no encontrado en la base de datos.');
                 }
 
-                // Extracción de la ruta del archivo para enviarla a la función de Netlify
                 const filePath = comprobante.url_comprobante.split('/comprobantes/')[1];
 
-                // Llama a la función de Netlify para obtener una URL segura y temporal
                 const response = await fetch('/.netlify/functions/generate-signed-url', {
                     method: 'POST',
                     body: JSON.stringify({ filePath: filePath })
@@ -547,7 +541,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 const signedUrl = data.signedUrl;
 
-                // Muestra el comprobante en el modal, sin importar el formato (PDF o imagen)
                 document.getElementById('comprobante-viewer-content').innerHTML = comprobante.url_comprobante.endsWith('.pdf')
                     ? `<embed src="${signedUrl}" type="application/pdf" width="100%" height="500px">`
                     : `<img src="${signedUrl}" alt="Comprobante de Pago" style="max-width: 100%; height: auto;">`;
