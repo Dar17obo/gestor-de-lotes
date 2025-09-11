@@ -528,7 +528,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error('Comprobante no encontrado en la base de datos.');
                 }
 
-                const filePath = comprobante.url_comprobante.split('/comprobantes/')[1];
+                // CORRECCIÓN: Extrae la ruta de forma más segura
+                const fullUrl = comprobante.url_comprobante;
+                const pathParts = fullUrl.split('/comprobantes/');
+                if (pathParts.length < 2) {
+                    throw new Error('URL del comprobante mal formada.');
+                }
+                const filePath = pathParts[1];
+
 
                 const response = await fetch('/.netlify/functions/generate-signed-url', {
                     method: 'POST',
@@ -549,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 abrirModal('comprobante-viewer-modal');
             } catch (error) {
                 console.error('Error al obtener el comprobante del historial:', error);
-                return alert('Hubo un error al obtener el comprobante. Por favor, revisa la consola.');
+                return alert('Hubo un error al obtener el comprobante.');
             }
         }
         
