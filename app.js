@@ -874,3 +874,5 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(link);
     }
 });
+
+// Version final
