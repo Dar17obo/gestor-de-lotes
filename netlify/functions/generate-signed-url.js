@@ -1,7 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 
 exports.handler = async (event) => {
-    // Acepta solo solicitudes POST
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
@@ -15,20 +14,9 @@ exports.handler = async (event) => {
         // LOG para diagnóstico
         console.log('Ruta de archivo recibida:', filePath);
 
-        const supabaseUrl = process.env.SUPABASE_URL;
-        const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-
-        if (!supabaseUrl || !supabaseAnonKey) {
-            console.log('Error: Las variables de entorno no están configuradas.');
-            return {
-                statusCode: 500,
-                body: 'Supabase keys are not set as environment variables',
-            };
-        }
-
-        // LOG para diagnóstico
-        console.log('Variables de entorno cargadas correctamente.');
-
+        // Reemplaza con tus claves de Supabase
+        const supabaseUrl = 'https://jbenfvckviqdfmjzjomi.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpiZW5mdmNrdmlxZGZtanpqb21pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2NjY2MjYsImV4cCI6MjA2ODI0MjYyNn0.f2Xqrj1XoufKQpeOkqx6_SunYs7dcyuvjBFCwWY0Ors';
 
         const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
