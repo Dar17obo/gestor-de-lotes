@@ -475,7 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // CORRECCIÓN: Ahora la validación de si tiene lote asignado es más precisa.
         if (target.matches('.btn-aprobar-comprobante')) {
             const comprobanteId = target.dataset.id;
             
@@ -874,5 +873,3 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(link);
     }
 });
-
-// Version final

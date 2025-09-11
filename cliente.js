@@ -122,10 +122,9 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = 'Enviando...';
         
         try {
-            // CORRECCIÓN: Se usa la ruta más simple para evitar conflictos
-            const filePath = `${clienteActual.dni}/${mesPago}_${new Date().toISOString()}_${archivo.name}`;
+            // CORRECCIÓN DEFINITIVA: Se usa la ruta estructurada ID_VENDEDOR/DNI_CLIENTE
+            const filePath = `${clienteActual.vendedor_id}/${clienteActual.dni}/${mesPago}_${new Date().toISOString()}_${archivo.name}`;
             
-            // Se usa la nueva función para subir el archivo
             await subirArchivo(archivo, filePath);
             
             const { data: publicUrlData } = sb.storage.from('comprobantes').getPublicUrl(filePath);
