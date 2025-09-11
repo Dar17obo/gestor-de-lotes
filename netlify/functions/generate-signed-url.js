@@ -12,24 +12,32 @@ exports.handler = async (event) => {
     try {
         const { filePath } = JSON.parse(event.body);
 
-        // Lee las claves de Supabase desde las variables de entorno de Netlify
+        // LOG para diagnóstico
+        console.log('Ruta de archivo recibida:', filePath);
+
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
         if (!supabaseUrl || !supabaseAnonKey) {
+            console.log('Error: Las variables de entorno no están configuradas.');
             return {
                 statusCode: 500,
                 body: 'Supabase keys are not set as environment variables',
             };
         }
 
+        // LOG para diagnóstico
+        console.log('Variables de entorno cargadas correctamente.');
+
+
         const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
         const { data, error } = await supabase.storage
             .from('comprobantes')
-            .createSignedUrl(filePath, 60); // La URL es válida por 60 segundos
+            .createSignedUrl(filePath, 60);
 
         if (error) {
+            console.error('Error de Supabase:', error.message);
             return {
                 statusCode: 500,
                 body: JSON.stringify({ error: error.message }),
@@ -41,6 +49,7 @@ exports.handler = async (event) => {
             body: JSON.stringify({ signedUrl: data.signedUrl }),
         };
     } catch (error) {
+        console.error('Error en la función:', error.message);
         return {
             statusCode: 500,
             body: JSON.stringify({ error: error.message }),
