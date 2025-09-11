@@ -122,8 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = 'Enviando...';
         
         try {
-            // Se genera la ruta de archivo para el bucket
-            const filePath = `${clienteActual.vendedor_id}/${clienteActual.dni}/${mesPago}_${new Date().toISOString()}_${archivo.name}`;
+            // CORRECCIÓN: Se usa la ruta más simple para evitar conflictos
+            const filePath = `${clienteActual.dni}/${mesPago}_${new Date().toISOString()}_${archivo.name}`;
             
             // Se usa la nueva función para subir el archivo
             await subirArchivo(archivo, filePath);
