@@ -84,6 +84,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // NUEVA FUNCIÓN PARA SUBIR EL ARCHIVO CON FETCH
+    async function subirArchivo(archivo, filePath) {
+        const url = `${SUPABASE_URL}/storage/v1/object/comprobantes/${filePath}`;
+        const formData = new FormData();
+        formData.append('file', archivo);
+
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        return data;
+    }
 
     subirComprobanteForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -100,17 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = 'Enviando...';
         
         try {
-            // CORRECCIÓN: Se utiliza el vendedor_id como la carpeta de primer nivel.
+            // Se genera la ruta de archivo para el bucket
             const filePath = `${clienteActual.vendedor_id}/${clienteActual.dni}/${mesPago}_${new Date().toISOString()}_${archivo.name}`;
             
-            const { error: uploadError } = await sb.storage.from('comprobantes').upload(filePath, archivo);
+            // Se usa la nueva función para subir el archivo
+            await subirArchivo(archivo, filePath);
             
-            if (uploadError) {
-                console.error('Error al subir el archivo:', uploadError);
-                alert('Hubo un error al subir el comprobante. Por favor, inténtalo de nuevo.');
-                return;
-            }
-
             const { data: publicUrlData } = sb.storage.from('comprobantes').getPublicUrl(filePath);
             const publicUrl = publicUrlData.publicUrl;
 
@@ -133,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Hubo un error inesperado:", error);
-            alert("Ocurrió un error inesperado. Por favor, inténtalo de nuevo.");
+            alert("Ocurrió un error inesperado: " + error.message);
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Enviar Comprobante';

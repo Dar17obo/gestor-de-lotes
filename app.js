@@ -113,8 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function cargarClientes() {
         const { data, error } = await sb.from('clientes').select('*, id_lote_asignado').eq('vendedor_id', currentUser.id);
         if (error) throw error;
-        clientes = data || [];
         
+        const clientesData = data || [];
+
         const ultimoPagoPorCliente = pagos.reduce((acc, pago) => {
             if (!acc[pago.id_cliente] || new Date(pago.created_at) > new Date(acc[pago.id_cliente].created_at)) {
                 acc[pago.id_cliente] = pago;
@@ -122,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return acc;
         }, {});
         
-        clientes = clientes.map(cliente => {
+        clientes = clientesData.map(cliente => {
             const pago = ultimoPagoPorCliente[cliente.id] || null;
             return {
                 ...cliente,
@@ -546,7 +547,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     : `<img src="${signedUrl}" alt="Comprobante de Pago" style="max-width: 100%; height: auto;">`;
                 
                 abrirModal('comprobante-viewer-modal');
-
             } catch (error) {
                 console.error('Error al obtener el comprobante del historial:', error);
                 return alert('Hubo un error al obtener el comprobante. Por favor, revisa la consola.');
