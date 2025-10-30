@@ -14,13 +14,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const comprobanteFileInput = document.getElementById('comprobante-archivo');
     const pagoMesSelect = document.getElementById('pago-mes');
     
-    // CORRECCIÓN: Se agregó el ID al elemento p en cliente.html
-    const historialPagosClienteContainer = document.getElementById('historial-pagos-cliente');
+    // Las referencias al historial fueron eliminadas de forma permanente.
     const pagoPendienteMessage = document.getElementById('pago-pendiente-message');
-    const historialPagosContainer = document.getElementById('historial-pagos-container');
 
 
     let clienteActual = null;
+
+    // MACHETE: Función de ayuda para subir el archivo.
+    const subirArchivo = async (archivo, filePath) => {
+        const { error } = await sb.storage
+            .from('comprobantes') 
+            .upload(filePath, archivo, {
+                cacheControl: '3600',
+                upsert: false 
+            });
+
+        if (error) {
+            console.error('Error al subir el archivo:', error);
+            throw new Error('Error al subir el comprobante. Revisa la conexión.');
+        }
+    }
+    
+    // Función para cargar el estado del último comprobante (se mantiene)
+    async function cargarEstadoUltimoPago() {
+        if (!clienteActual) return;
+        
+        const { data: comprobantes, error } = await sb
+            .from('comprobantes_subidos') 
+            .select('estado_verificacion')
+            .eq('id_cliente', clienteActual.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        if (error) {
+            console.error('Error al obtener estado del comprobante:', error);
+            pagoPendienteMessage.textContent = 'Error al cargar estado.';
+            pagoPendienteMessage.className = 'error-message';
+            return;
+        }
+
+        if (comprobantes && comprobantes.length > 0) {
+            const estado = comprobantes[0].estado_verificacion;
+            pagoPendienteMessage.textContent = `Estado: ${estado}.`;
+            pagoPendienteMessage.classList.remove('error-message', 'success-message');
+            
+            if (estado === 'Pendiente') {
+                pagoPendienteMessage.classList.add('error-message'); // Resaltar pendiente
+            } else if (estado === 'Verificado') {
+                pagoPendienteMessage.classList.add('success-message');
+            }
+        } else {
+            pagoPendienteMessage.textContent = 'Aún no se han enviado comprobantes.';
+            pagoPendienteMessage.classList.remove('error-message', 'success-message');
+        }
+    }
+
 
     clienteLoginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -28,101 +76,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const { data, error } = await sb.from('clientes').select('*, id_lote_asignado').eq('dni', dni).single();
 
-        if (error || !data || !data.id_lote_asignado) {
-            clienteErrorMessage.textContent = 'DNI no encontrado o no tiene un lote asignado.';
-            pagoFormContainer.classList.add('hidden');
+        if (error || !data) {
+            console.error('Error o Cliente no encontrado:', error);
+            clienteErrorMessage.textContent = 'DNI no encontrado o error en la consulta.';
             return;
         }
 
         clienteActual = data;
         nombreClienteDisplay.textContent = clienteActual.nombre_apellido;
-        // CORRECCIÓN: Se oculta el formulario de login, no toda la vista.
-        clienteLoginForm.classList.add('hidden');
+        clienteErrorMessage.textContent = '';
+        
+        // Muestra la vista de pago
+        clienteLoginForm.classList.add('hidden'); // Oculta el formulario de login
+
+        // --- CORRECCIÓN DEL LOGO: LAS SIGUIENTES LÍNEAS FUERON ELIMINADAS O COMENTADAS ---
+        // clienteLoginView.querySelector('.login-container > .logo-login').classList.add('hidden'); // ELIMINADA
+        // clienteLoginView.querySelector('.login-container > #cliente-title').classList.add('hidden'); // ELIMINADA
+
         pagoFormContainer.classList.remove('hidden');
-        await cargarHistorialPagosCliente();
+
+        // MACHETE: Carga el estado del último pago
+        await cargarEstadoUltimoPago(); 
     });
 
-    async function cargarHistorialPagosCliente() {
-        const { data: pagosData, error: pagosError } = await sb.from('pagos').select('*').eq('id_cliente', clienteActual.id).order('created_at', { ascending: false });
-
-        if (pagosError) {
-            console.error('Error al cargar historial de pagos:', pagosError);
-            historialPagosContainer.innerHTML = '<p>Error al cargar el historial de pagos.</p>'; 
-            return;
-        }
-        
-        const { data: comprobantesData, error: comprobantesError } = await sb.from('comprobantes_subidos').select('*, url_comprobante').eq('id_cliente', clienteActual.id).eq('estado_verificacion', 'Pendiente');
-
-        if (comprobantesError) {
-             console.error('Error al cargar comprobantes pendientes:', comprobantesError);
-        }
-        
-        if (comprobantesData && comprobantesData.length > 0) {
-            let comprobantesHTML = '<p>Tienes comprobantes pendientes de verificación:</p><ul>';
-            comprobantesData.forEach(c => {
-                 comprobantesHTML += `<li>Comprobante de ${c.mes_pago} - Estado: **${c.estado_verificacion}**</li>`;
-            });
-            comprobantesHTML += '</ul>';
-            // CORRECCIÓN: Ya existe el elemento en el HTML, ahora se puede asignar el valor
-            pagoPendienteMessage.innerHTML = comprobantesHTML;
-            pagoPendienteMessage.classList.remove('hidden');
-        } else {
-             pagoPendienteMessage.classList.add('hidden');
-        }
-        
-        if (pagosData && pagosData.length > 0) {
-            let pagosHTML = '<h3>Historial de Pagos Realizados:</h3><ul class="historial-list">';
-            pagosData.forEach(pago => {
-                const fecha = new Date(pago.created_at).toLocaleDateString();
-                const monto = pago.monto_usd_momento.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
-                pagosHTML += `<li>**Fecha:** ${fecha} - **Concepto:** ${pago.concepto} - **Monto:** ${monto}</li>`;
-            });
-            pagosHTML += '</ul>';
-            historialPagosContainer.innerHTML = pagosHTML;
-        } else {
-            historialPagosContainer.innerHTML = '<p>No hay pagos registrados.</p>';
-        }
-    }
-    
-    // NUEVA FUNCIÓN PARA SUBIR EL ARCHIVO CON FETCH
-    async function subirArchivo(archivo, filePath) {
-        const url = `${SUPABASE_URL}/storage/v1/object/comprobantes/${filePath}`;
-        const formData = new FormData();
-        formData.append('file', archivo);
-
-        const response = await fetch(url, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            }
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Error ${response.status}: ${errorText}`);
-        }
-
-        const data = await response.json();
-        return data;
-    }
 
     subirComprobanteForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        if (!clienteActual) {
+            alert('Error de sesión. Por favor, ingresa nuevamente.');
+            return;
+        }
+
         const archivo = comprobanteFileInput.files[0];
         const mesPago = pagoMesSelect.value;
-        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const submitBtn = subirComprobanteForm.querySelector('button[type="submit"]');
 
         if (!archivo || !mesPago) {
-            alert('Por favor, selecciona un archivo y un mes de pago.');
+            alert('Debes seleccionar un archivo y el mes de pago.');
             return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Enviando...';
+        submitBtn.textContent = 'Subiendo...';
         
         try {
-            // CORRECCIÓN DEFINITIVA: Se usa la ruta estructurada ID_VENDEDOR/DNI_CLIENTE
+            // MACHETE: Aseguramos la ruta estructurada ID_VENDEDOR/DNI_CLIENTE
             const filePath = `${clienteActual.vendedor_id}/${clienteActual.dni}/${mesPago}_${new Date().toISOString()}_${archivo.name}`;
             
             await subirArchivo(archivo, filePath);
@@ -144,7 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 alert('¡Comprobante enviado con éxito! A la espera de la verificación del vendedor.');
                 subirComprobanteForm.reset();
-                await cargarHistorialPagosCliente();
+                
+                // Actualiza el estado después de la subida
+                await cargarEstadoUltimoPago();
             }
 
         } catch (error) {
@@ -156,6 +157,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
-
-LISTO

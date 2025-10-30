@@ -11,6 +11,7 @@
         <div class="login-container">
             <img src="logo.png" alt="Logo" class="logo-login">
             <h2 id="cliente-title">Gestor de Lotes - Acceso de Cliente</h2>
+            
             <form id="cliente-login-form" class="form-container">
                 <input type="text" id="cliente-dni" placeholder="Ingresa tu DNI" required>
                 <button type="submit">Ingresar</button>
@@ -20,6 +21,12 @@
             <div id="pago-form-container" class="hidden">
                 <h3 id="pago-form-title">Cargar Comprobante de Pago</h3>
                 <p>Hola, <strong id="nombre-cliente-display"></strong>. Sube tu comprobante de pago.</p>
+                
+                <div>
+                     <h4>Estado del Último Pago Enviado:</h4>
+                    <p id="pago-pendiente-message" class="error-message">Buscando...</p>
+                </div>
+                
                 <form id="subir-comprobante-form" class="form-container">
                     <label for="comprobante-archivo">Selecciona el comprobante (imagen o PDF):</label>
                     <input type="file" id="comprobante-archivo" accept="image/*, .pdf" required>
@@ -40,11 +47,10 @@
                         <option value="Noviembre">Noviembre</option>
                         <option value="Diciembre">Diciembre</option>
                     </select>
-                    <p id="pago-pendiente-message" class="error-message"></p>
                     <button type="submit">Enviar Comprobante</button>
                 </form>
-            </div>
-             <div id="historial-pagos-container"></div>
+                
+                </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
